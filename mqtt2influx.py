@@ -16,15 +16,6 @@ MQTT_CLIENT_ID = 'MQTTInfluxDBBridge'
 
 influxdb_client = InfluxDBClient(INFLUXDB_ADDRESS, 8086, INFLUXDB_USER, INFLUXDB_PASSWORD, None)
 
-class SensorData(NamedTuple):
-    plant: str
-    light: str
-    temperature: str
-    moisture: str
-    location: str
-    measurement: str
-    value: float
-
 def on_connect(client, userdata, flags, rc):
     """ The callback for when the client receives a CONNACK response from the server."""
     print('Connected with result code ' + str(rc))
@@ -42,8 +33,6 @@ def _parse_mqtt_message(topic, payload):
 def _send_sensor_data_to_influxdb(sensor, sensor_data):
     #print ("Sensor: " + str(sensor_data))
     plant = sensor.split('/')[1]
-    print (plant)
-    print (json.dumps(sensor_data, indent=2, default=str))
     json_body = [
         {
             'measurement': plant,
@@ -79,7 +68,6 @@ def main():
     _init_influxdb_database()
 
     mqtt_client = mqtt.Client(MQTT_CLIENT_ID)
-   #mqtt_client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
     mqtt_client.on_connect = on_connect
     mqtt_client.on_message = on_message
     mqtt_client.connect(MQTT_ADDRESS, 1883)
